@@ -13,15 +13,37 @@
             }
         },
         {
-            "name": "ifx_debug",
-            "displayName": "ifx debug version",
-            "description": "Preset to builds a ifx debug executable for swatplus",
-            "binaryDir": "build/debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_INSTALL_PREFIX": "build/debug",
-                "CMAKE_Fortran_COMPILER": "ifx"
-            }
+          "name": "ifort_release",
+          "displayName": "ifort release version",
+          "description": "Preset to build ifort release executable for swatplus",
+          "binaryDir": "build/release",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release",
+            "CMAKE_INSTALL_PREFIX": "build/release",
+            "CMAKE_Fortran_COMPILER": "ifort"
+          }
+        },
+        {
+          "name": "ifx_debug",
+          "displayName": "ifx debug version",
+          "description": "Preset to builds a ifx debug executable for swatplus",
+          "binaryDir": "build/debug",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Debug",
+            "CMAKE_INSTALL_PREFIX": "build/debug",
+            "CMAKE_Fortran_COMPILER": "ifx"
+          }
+        },
+        {
+          "name": "ifx_release",
+          "displayName": "ifx release version",
+          "description": "Preset to build ifx release executable for swatplus",
+          "binaryDir": "build/release",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release",
+            "CMAKE_INSTALL_PREFIX": "build/release",
+            "CMAKE_Fortran_COMPILER": "ifx"
+          }
         },
         {
             "name": "gfortran_debug_windows",
