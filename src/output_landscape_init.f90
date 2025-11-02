@@ -459,28 +459,20 @@
         if (pco%cb_hru%d == "y" .or. pco%cb_hru%m == "y"  .or. pco%cb_hru%y == "y" .or. & 
             pco%cb_hru%d == "l" .or. pco%cb_hru%m == "l"  .or. pco%cb_hru%y == "l") then
           open (4548,file = "hru_cbn_lyr.txt", recl = 1500)
-          write (4548,*)  bsn%name, prog
-          write (4548,*)                                     &
-            "freq          jday         mon         day        year        unit hru     name               total soil carbon (Mg/ha) by layer depth in mm "
+          write (4548,*)  bsn%name, prog, "total soil carbon (Mg/ha) by layer depth in mm"
           write (9000,*) "HRU                       hru_cbn_lyr.txt"
           if (pco%csvout == "y") then
             open (4549,file="hru_cbn_lyr.csv", recl = 1500)
-            write (4549,*)  bsn%name, prog
-            write (4549,*)                  &
-            "freq,jday,mon,day,year,unit,hru,name,total soil carbon (Mg/ha) by layer depth in mm"
+            write (4549,*)  bsn%name, prog, "total soil carbon (Mg/ha) by layer depth in mm"
             write (9000,*) "HRU                       hru_cbn_lyr.csv"
           end if
     
           open (4558,file = "hru_seq_lyr.txt", recl = 1500)
-          write (4558,*)  bsn%name, prog
-          write (4558,*)                                     &
-            "freq          jday         mon         day        year        unit hru     name               total sequestered soil carbon (Mg/ha) by layer depth in mm "
+          write (4558,*)  bsn%name, prog, "total sequestered soil carbon (Mg/ha) by layer depth in mm"
           write (9000,*) "HRU                       hru_seq_lyr.txt"
           if (pco%csvout == "y") then
             open (4559,file="hru_seq_lyr.csv", recl = 1500)
-            write (4559,*)  bsn%name, prog
-            write (4559,*)                  &
-            "freq,jday,mon,day,year,unit,hru,name,'total sequestered soil carbon (Mg/ha) by layer depth in mm'"
+            write (4559,*)  bsn%name, prog, "total sequestered soil carbon (Mg/ha) by layer depth in mm" 
             write (9000,*) "HRU                       hru_seq_lyr.csv"
           end if
     
@@ -643,7 +635,7 @@
 
         !! write end of simulation soil properties headers to hru_endsim_soil_prop
         if (bsn_cc%cswat == 2) then
-          if (pco%cb_hru%a == "y") then
+          if (pco%cb_hru%d /= "n" .or. pco%cb_hru%m /= "n" .or. pco%cb_hru%y /= "n" .or. pco%cb_hru%a /= "n") then
             open (4584,file = "hru_endsim_soil_prop.txt", recl = 1500)
             write (4584,*)  bsn%name, prog
             write (4584,*)  endsim_soil_prop_hdr
@@ -654,6 +646,28 @@
               write (4585,'(*(G0.3,:,","))') endsim_soil_prop_hdr
               write (9000,*) "HRU                       hru_endsim_soil_prop.csv"
             end if
+          endif
+        endif
+
+        !! write beginning of simulation soil properties headers to hru_begsim_soil_prop
+        if (bsn_cc%cswat == 2) then
+          if (pco%cb_hru%d /= "n" .or. pco%cb_hru%m /= "n" .or. pco%cb_hru%y /= "n" .or. pco%cb_hru%a /= "n") then
+            open (4586,file = "hru_begsim_soil_prop.txt", recl = 1500)
+            write (4586,*)  bsn%name, prog
+            write (4586,*)  endsim_soil_prop_hdr  ! begsim can use the same header as endsim 
+            write (9000,*) "HRU                       hru_begsim_soil_prop.txt"
+            if (pco%csvout == "y") then
+              open (4587,file="hru_begsim_soil_prop.csv", recl = 1500)
+              write (4587,*)  bsn%name, prog
+              write (4587,'(*(G0.3,:,","))') endsim_soil_prop_hdr ! begsim can use the same header as endsim 
+              write (9000,*) "HRU                       hru_begsim_soil_prop.csv"
+            end if
+            ! Write out begining adjusted soil properties if any value of cb_hru is not "n"
+              if (pco%cb_hru%d /= "n" .or. pco%cb_hru%m /= "n" .or. pco%cb_hru%y /= "n" .or. pco%cb_hru%a /= "n") then
+                call soil_nutcarb_write(" b")    ! Outputs beginning soil values to hru_begsim_soil_prop.txt/csv
+              endif
+
+
           endif
         endif
         

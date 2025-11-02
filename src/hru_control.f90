@@ -394,12 +394,12 @@
         !end if
 
         !! check irrigation demand decision table for water allocation (after adding irrigation)
-        if (hru(j)%irr_dmd_dtbl > 0) then
-          id = hru(j)%irr_dmd_dtbl
+        if (hru(j)%irr_trn_dtbl > 0) then
+          id = hru(j)%irr_trn_dtbl
           jj = j
           d_tbl => dtbl_lum(id)
           !! iauto points to pcom(j)%dtbl(iauto) for days between operation
-          iauto = hru(j)%irr_dmd_iauto
+          iauto = hru(j)%irr_trn_iauto
           call conditions (jj, iauto)
           call actions (jj, iob, iauto)
         end if
@@ -474,6 +474,11 @@
           else
             soil(j)%sw_300 = soil(j)%sw_300 + soil(j)%phys(ly)%st
           end if
+        end do
+
+        ! compute total soil water for each layer in mm/mm of water content
+        do ly = 1, soil(j)%nly
+          soil(j)%phys(ly)%tot_sw = (soil(j)%phys(ly)%st / soil(j)%phys(ly)%thick) + soil(j)%phys(ly)%wp 
         end do
         
         !! compute actual ET for day in HRU
@@ -823,6 +828,9 @@
       ! output_plantweather
         hpw_d(j)%lai = pcom(j)%lai_sum
         hpw_d(j)%bioms = pl_mass(j)%tot_com%m
+        if (pl_mass(j)%tot_com%m < 0.) then
+          pl_mass(j)%tot_com%m = 0.
+        end if
         hpw_d(j)%residue = soil1(j)%rsd(1)%m
         hpw_d(j)%yield = pl_yield%m
         pl_yield = plt_mass_z
@@ -849,6 +857,10 @@
         hpw_d(j)%phubase0 = phubase(j)
 
       ! output_losses
+        !! don't sum during skip years
+        if (time%yrs > pco%nyskip) then
+          bsn_sedbud%upland_t = bsn_sedbud%upland_t + sedyld(j)
+        end if
         hls_d(j)%sedyld = sedyld(j) / hru(j)%area_ha
         hls_d(j)%sedorgn = sedorgn(j)
         hls_d(j)%sedorgp = sedorgp(j)
