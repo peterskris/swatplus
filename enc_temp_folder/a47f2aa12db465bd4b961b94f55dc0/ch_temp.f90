@@ -389,8 +389,10 @@
           dep_flow = sd_chd(ich)%chd*2
       end if
       
-      rttime = sd_ch_vel(ich)%rttime / 24   !routing time in days
-              
+      ! recalculate routing time because of error in sd_channel_control, check if bug is fixed now
+      rttime = sd_ch_vel(ich)%rttime / 24
+      !rttime = (sd_ch(ich)%chl * 1000. / (3600. * vc)) / 24    ! in days, calc from sd_channel_control (rttime had no change before, because of jhyd)
+            
       k_factor = 1000. * 4186. * dep_flow / 86400       ! E: Density*Spec_heat_water*water_depth / time_convers 
       t_heat_exch = k_e * (t_equil - tw_init) / k_factor * rttime
         

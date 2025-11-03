@@ -112,6 +112,9 @@
       ich = isdch
       isd_db = sd_dat(ich)%hyd
       iwst = ob(icmd)%wst
+      vc = 0.
+      
+      !define flow components
       
       !rtb floodplain
       if(bsn_cc%gwflow.eq.1) flood_freq(ich) = 0
@@ -160,8 +163,8 @@
       w = wst(iwst)%weat
       if (bsn_cc%lapse == 1) call cli_lapse
       wst(iwst)%weat = w
-      ht1%temp = 5.0 + 0.75 * wst(iwst)%weat%tave
-      wtemp = 5.0 + 0.75 * wst(iwst)%weat%tave
+      !ht1%temp = 5.0 + 0.75 * wst(iwst)%weat%tave
+      !wtemp = 5.0 + 0.75 * wst(iwst)%weat%tave
 
       if (sd_ch(ich)%msk%nsteps == 1) then
         ob(icmd)%tsin(1) = ht1%flo
@@ -321,7 +324,7 @@
         end if
       
       end if        ! ht1%flo > 0.
-      
+        
       !rtb hydrograph separation
       if (rttime > time%dtm / 60.) then      ! travel time > routing time step (hours)
         !! Variable Storage Coefficient method - sc=2*dt/(2*ttime+dt) - ttime=(in2+out1)/2
@@ -379,11 +382,11 @@
       hyd_sep_array(ich,4) = hdsep2%flo_swgw / 86400.
       hyd_sep_array(ich,5) = hdsep2%flo_satex / 86400.
       hyd_sep_array(ich,6) = hdsep2%flo_satexsw / 86400.
-      hyd_sep_array(ich,7) = 0. !hdsep2%flo_tile / 86400.
+      hyd_sep_array(ich,7) = hdsep2%flo_tile / 86400.  ! JK uncommented from = 0.
       !rtb hydrograph separation
       !end if
 
-      ich = isdch
+      call ch_temp
             
       !! check decision table for flow control - water diversion
       if (ob(icmd)%ruleset /= "null" .and. ob(icmd)%ruleset /= "0") then
@@ -424,9 +427,9 @@
       end if
       
       !! calculate stream temperature
-      ob(icmd)%hd(1)%temp = 5. + .75 * wst(iwst)%weat%tave
-      ht2%temp = 5. + .75 * wst(iwst)%weat%tave
-      ch_stor(isdch)%temp = 5. + .75 * wst(iwst)%weat%tave
+      !ob(icmd)%hd(1)%temp = 5. + .75 * wst(iwst)%weat%tave
+      !ht2%temp = 5. + .75 * wst(iwst)%weat%tave
+      !ch_stor(isdch)%temp = 5. + .75 * wst(iwst)%weat%tave
       
       !! set constituents for routing
       if (cs_db%num_pests > 0) then

@@ -5,6 +5,8 @@
       type channel_velocity_parameters
           real :: area = 0.             !m^2        |cross sectional area of flow at bankfull depth
           real :: vel_bf = 0.           !m^3/s      |flow rate when reach is at bankful depth
+          real :: vel = 0.              !m/s        |velocity(KPeters: from sd_channel_control)
+          real :: rttime = 0.           !m/s        |rttime(KPeters: from sd_channel_control)
           real :: wid_btm = 0.          !m          |bottom width of main channel
           real :: dep_bf = 0.           !m          |depth of water when reach is at bankfull depth
           real :: velav_bf = 0.         !m/s        |average velocity when reach is at bankfull depth

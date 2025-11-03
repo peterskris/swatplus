@@ -9,6 +9,7 @@
       use water_body_module
       use reservoir_module
       use utils
+      use channel_velocity_module
 
       implicit none     
 
@@ -87,7 +88,10 @@
       vel = h_rad ** .6666 * Sqrt(sd_ch(ich)%chs) / (sd_ch(ich)%chn + .001)
       vel = peakrate / rcurv%xsec_area
       rttime = sd_ch(ich)%chl / (3.6 * vel)
-
+      
+      sd_ch_vel(ich)%vel = vel   !added new variable to store velocity from this subroutine to use it in ch_temp
+      sd_ch_vel(ich)%rttime = rttime   !added new variable to store rttime from this subroutine to use it in ch_temp
+      
       !! add precip to inflow - km * m * 1000 m/km * ha/10000 m2 = ha
       ch_wat_d(ich)%area_ha = sd_ch(ich)%chl * sd_ch(ich)%chw / 10.
       !! m3 = 10. * mm * ha

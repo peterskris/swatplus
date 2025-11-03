@@ -25,7 +25,8 @@
       integer :: ichi = 0               !none      |counter
       integer :: isp_ini = 0            !          |counter
       integer :: ics = 0                !none      |counter
-      integer :: inut = 0               !none      |counter 
+      integer :: inut = 0               !none      |counter
+      integer :: itemp                   !none      |counter
       integer :: ihydsed = 0            !none      |counter
       integer :: i = 0                  !none      |counter
       integer :: k = 0                  !none      |counter
@@ -291,6 +292,13 @@
               exit
             end if
           end do   
+          
+          do itemp = 1, db_mx%w_temp    !added KPeters
+            if (w_temp(itemp)%name == sd_dat(ichi)%tempc) then
+              sd_dat(ichi)%temp = itemp
+              exit
+            end if
+          end do 
 
       end do
       close (105)

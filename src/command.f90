@@ -51,6 +51,7 @@
       integer :: i_mfl = 0            !rtb gwflow    |counter
       integer :: i_chan = 0           !rtb gwflow    |counter
       real :: sumflo = 0.
+      real :: ht1temp = 0
 
       icmd = sp_ob1%objs
       do while (icmd /= 0)

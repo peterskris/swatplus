@@ -40,6 +40,8 @@
       call field_read
       call hydrol_read
       
+      call shade_factor_read    !added KPeters
+      
       call snowdb_read
       call soil_db_read
       call soil_lte_db_read
