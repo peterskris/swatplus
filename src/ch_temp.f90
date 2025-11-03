@@ -102,6 +102,11 @@
 
       
       ! Kristin Peters (last update 03.11.2025):
+      
+      ! =========================================================
+      !  Step 1. Initialization and setup
+      ! =========================================================
+      
       ! get jday and year
       jday = time%day 
       
@@ -127,6 +132,10 @@
       if (allocated(ruid_array)) deallocate(ruid_array)
       allocate(ruid_array(ru_count))
    
+      ! =========================================================
+      !  Step 2. Tributary mixing
+      ! =========================================================
+      
       ! summing the temperature of the incoming tributaries (maximum 2)    
       
       ht1 = ob(iob)%hd(1)
@@ -151,7 +160,10 @@
           end if
       end do  
       
-      ! -------------------Step 1: basic mixing of components ----------------------------
+      ! =========================================================
+      !  Step 3. mixing of components
+      ! =========================================================
+
       ! initialize the mixing parameters
 
       sno_lag = w_temp(0)%sno_lag            !snow lag time (1-3)
@@ -220,8 +232,8 @@
       ! previous local water temperature
       tw_local_prev = ch_out_d(ich)%temp
       
-      ! calculate average temperature of the previous x days 
-    ! surface lag
+      ! ---------------------calculate average temperature of the previous x days ------------------------------------
+     ! surface lag
       if (time%yrs == 1) then !only if simulation year = 1
           surf_lag = min (jday, surf_lag)
       else 
@@ -292,6 +304,8 @@
           t_air_min_av = sum(tmp(ig)%ts2(jday-sno_lag+1:jday,yrs_to_start))/sno_lag
       end if
       t_sno = min(2.5,max(0.01,(t_air_max_av + t_air_min_av) / 2))
+      
+      !-------------------------end calculate lagged temperatures--------------------------------------
 
     ! calculate the components contributions
       sno_contr = sno_coef * (surf_lag_coef * t_sno) * q_lsu_sno
@@ -306,7 +320,7 @@
           tw_local = 5.0 + 0.75 * w%tave
       end if
       
-      ! -----------------Step 2: initial water temperature of upstream channel------------------
+      ! ----------------- initial water temperature of upstream channel------------------
         
       tw_up = ht1%temp
       if (ht1%flo/86400 > 1e-6) then            !error if channel flow is 0
@@ -317,7 +331,9 @@
           tw_init = tw_local
       end if    
            
-      ! Step 3: Stream Temperature from heat exchange (by Efrain Noa-Yarasca) ------------------------------------------------
+      ! =========================================================
+      !  Step 4. Heat exchange and equilibrium temperature (by Efrain Noa-Yarasca)
+      ! =========================================================
       
       tdx_cal = w%dewpt * w_temp(0)%hex_coef1 !calibrated dew point temperature
       tdx = amin1(tdx_cal, t_air)   !get tdx out of SWAT                
@@ -394,6 +410,10 @@
       k_factor = 1000. * 4186. * dep_flow / 86400       ! E: Density*Spec_heat_water*water_depth / time_convers 
       t_heat_exch = k_e * (t_equil - tw_init) / k_factor * rttime
         
+      ! =========================================================
+      !  Step 6. Final output
+      ! =========================================================
+      
       ! final new stream temperature      
       tw_final = tw_init + t_heat_exch
       

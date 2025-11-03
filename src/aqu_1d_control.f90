@@ -255,9 +255,9 @@
       ob(icmd)%hd(1)%solp = aqu_d(iaq)%minp
       
       !! temperature of aquifer flow
-      !ob(icmd)%hd(1)%temp = w_temp%gw  ! KPeters
+      !ob(icmd)%hd(1)%temp = w_temp%gw  
       
-      !! separate gw flo? - added KPeters
+      !! separate gw flo !KPeters added for stream temperature routine
       ob(icmd)%hdsep%flo_gwsw = ob(icmd)%hd(1)%flo
 
       !! compute fraction of flow to each channel in the aquifer

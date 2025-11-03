@@ -293,7 +293,7 @@
             end if
           end do   
           
-          do itemp = 1, db_mx%w_temp    !added KPeters
+          do itemp = 1, db_mx%w_temp    
             if (w_temp(itemp)%name == sd_dat(ichi)%tempc) then
               sd_dat(ichi)%temp = itemp
               exit

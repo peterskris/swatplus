@@ -33,7 +33,7 @@
         character(len=16) :: hyd = ""                   !points to hydrology.res for hydrology inputs
         character(len=16) :: sed = ""                   !sediment inputs-points to sediment.res
         character(len=16) :: nut = ""                   !nutrient inputs-points to nutrient.res
-        character(len=16) :: temp  = ""                      !temperature input - added KPeters
+        character(len=16) :: temp  = ""                 !temperature input 
       end type channel_data_char_input
       type (channel_data_char_input), dimension(:), allocatable :: ch_dat_c
 
@@ -64,7 +64,7 @@
         integer :: hyd = 0                    !points to hydrology.res for hydrology inputs
         integer :: sed = 0                    !sediment inputs-points to sediment.res
         integer :: nut = 0                    !nutrient inputs-points to nutrient.res
-        integer :: temp = 0                    !temperature input   -added KPeters
+        integer :: temp = 0                   !temperature input   
       end type channel_data
       type (channel_data), dimension(:), allocatable :: ch_dat
             
@@ -158,7 +158,7 @@
       end type channel_nut_data
       type (channel_nut_data), dimension(:), allocatable :: ch_nut
 
-      type water_temperature_data   !added KPeters
+      type water_temperature_data   
         character(len=13) :: name 
         real :: sno_mlt = 1.        ! none          |coefficient influencing snowmelt temperature contributions
         real :: gw = 1.             ! none          |coefficient influencing groundwater temperature contributions
