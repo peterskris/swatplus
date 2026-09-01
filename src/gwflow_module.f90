@@ -201,6 +201,10 @@
       endtype cell_channel_info
       type (cell_channel_info), dimension(:), allocatable :: gw_chan_info
 
+      !per-channel aquifer-->channel exchange flow and temperature
+      real, dimension(:), allocatable :: gw_chan_exch_flo   !m3/s |total gw-->channel exchange flow, per channel, today
+      real, dimension(:), allocatable :: gw_chan_exch_temp  !degC |flow-weighted avg temp of that exchange flow, per channel, today
+
       !groundwater-channel cell groups ---------------------------------------------------------
       integer :: gw_gwsw_group_flag = 0                     !           |flag for channel cell grouping
       integer :: gw_gwsw_ngroup = 0                         !           |number of groups

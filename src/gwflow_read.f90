@@ -781,6 +781,8 @@
       !flux output file
       !determine the number of cells that are linked to each channel
       allocate(gw_chan_info(sp_ob%chandeg))
+      allocate(gw_chan_exch_flo(sp_ob%chandeg), source = 0.)
+      allocate(gw_chan_exch_temp(sp_ob%chandeg), source = 0.)
       do i=1,sp_ob%gwflow
         channel = gw_chan_chan(i) !channel connected to cell
         gw_chan_info(channel)%ncon = gw_chan_info(channel)%ncon + 1

@@ -1,4 +1,4 @@
-      subroutine ch_temp
+subroutine ch_temp
       
       use basin_module
       use input_file_module
@@ -12,6 +12,7 @@
       use calibration_data_module
       use time_module
       use channel_velocity_module
+      use gwflow_module, only : gw_chan_exch_flo, gw_chan_exch_temp
 
       implicit none
       
@@ -73,6 +74,9 @@
       real :: tw_local
       real :: tw_init
       real :: tw_up 
+      real, allocatable, save :: tw_final_prevday(:)   !deg C  |true previous-day final stream temp
+      logical, save :: tw_debug_file_open = .false.     !       |tracks whether the ch_temp diagnostic output file has
+                                                         !       |been opened yet (opened lazily, on the first call)
       integer :: ilsu           !none       |counter
       real :: sw_init           
       real :: sno_init          
@@ -118,6 +122,19 @@
       
       ! define default water temperature by old equation
       tw_def = 5.0 + 0.75 * w%tave 
+
+      ! set up the true previous-day temperature array 
+      if (.not. allocated(tw_final_prevday)) then
+          allocate(tw_final_prevday(sp_ob%chandeg), source = tw_def)
+      end if
+
+      ! open the ch_temp diagnostic output file once, on the very first call, and write its header
+      if (.not. tw_debug_file_open) then
+          open(9999, file='ch_temp_debug_day.txt')
+          write(9999,'(A)') 'jday   mo  day_mo  yr  chan  gw_exch_flo_m3s  gw_exch_temp_C  q_gw_m3s  '// &
+              'q_surf  q_lat  q_snow  q_wyld  tw_local  tw_local_prev  tw_up  tw_init  tw_final'
+          tw_debug_file_open = .true.
+      end if
       
       ! initialize ruid_array to store the number of incoming objects
       ru_count = 0
@@ -222,15 +239,21 @@
       end if
         
       ! add gw flow 
-      q_gw = hdsep1%flo_gwsw / 86400   
+      if (bsn_cc%gwflow == 1) then
+          ! use the real gwflow aquifer-->channel exchange flow (accumulated in gwflow_channel_exch,
+          ! same day) instead of the hdsep-based estimate below, which is not populated by gwflow
+          q_gw = gw_chan_exch_flo(ich)
+      else
+          q_gw = hdsep1%flo_gwsw / 86400   
+      end if
       if (q_gw < 10) then       ! model runs into error if the number is too high, set threshold 10 m3/s
-          q_gw = hdsep1%flo_gwsw / 86400
+          q_gw = q_gw
       else
           q_gw = 10
       end if     
 
-      ! previous local water temperature
-      tw_local_prev = ch_out_d(ich)%temp
+      ! previous DAY's local water temperature 
+      tw_local_prev = tw_final_prevday(ich)
       
       ! ---------------------calculate average temperature of the previous x days ------------------------------------
       if (ig <= 0) then
@@ -315,16 +338,17 @@
 
     ! calculate the components contributions
       sno_contr = sno_coef * (surf_lag_coef * t_sno) * q_lsu_sno
-      gw_contr = gw_coef * (gw_lag_coef * t_gw) * q_gw
+      if (bsn_cc%gwflow == 1) then
+          ! use the real, flow-weighted average temperature of today's aquifer-->channel exchange
+          gw_contr = gw_coef * gw_chan_exch_temp(ich) * q_gw
+      else
+          gw_contr = gw_coef * (gw_lag_coef * t_gw) * q_gw
+      end if
       lat_contr = sur_lat_coef  * (lat_lag_coef * t_lat) * q_lsu_lat
       surf_contr = sur_lat_coef * (surf_lag_coef * t_surf) * q_lsu_surf 
 
     !  mixing of components
-      if(bsn_cc%gwflow == 1) then !groundwater contribution handled in gwflow subroutines
-			  tw_local = (sno_contr + lat_contr + surf_contr) / q_lsu_wyld	 
-			else
-			  tw_local = (sno_contr + gw_contr + lat_contr + surf_contr) / q_lsu_wyld
-			endif
+      tw_local = (sno_contr + gw_contr + lat_contr + surf_contr) / q_lsu_wyld
              
       if (abs(tw_local - tw_local_prev) > 5) then           ! difference of tmp between two days cannot be larger than 5 degrees - plausibility check for high peaks presumably resulting from routing errors
           tw_local = 5.0 + 0.75 * w%tave
@@ -438,16 +462,15 @@
       ch_stor(ich)%temp = tw_final
       ch_out_d(ich)%temp = tw_final                ! for writing the output in channel_sd_day
       wtemp = 5.0 + 0.75 * wst(iwst)%weat%tave     ! this writes the last column in channel_sd_day
+
+      ! save today's final temperature as tomorrow's true "previous day" value
+      tw_final_prevday(ich) = tw_final
+
+      ! write full diagnostic chain for this channel/day, for validating the temperature model
+      write(9999,'(I5,2X,I4,2X,I4,2X,I6,2X,I6,2X,12(F12.4,2X))') int(jday), time%mo, time%day_mo,  &
+          time%yrc, ich, gw_chan_exch_flo(ich), gw_chan_exch_temp(ich), q_gw, q_lsu_surf, q_lsu_lat, &
+          q_lsu_sno, q_lsu_wyld, tw_local, tw_local_prev, tw_up, tw_init, tw_final
       
-      !output for variable analysis      
-      hyd_sep_array(ich,1) = q_lsu_surf
-      hyd_sep_array(ich,2) = q_lsu_lat
-      hyd_sep_array(ich,3) = q_gw
-      hyd_sep_array(ich,4) = q_lsu_wyld
-      hyd_sep_array(ich,5) = q_lsu_sno
-      hyd_sep_array(ich,6) = tw_final 
-      hyd_sep_array(ich,7) = tw_init
     
       return    
 	end subroutine ch_temp
-	

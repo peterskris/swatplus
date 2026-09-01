@@ -40,10 +40,16 @@
       real :: heat_flux = 0.             !J/day  |heat transferred between groundwater and channel
       real :: chan_flow = 0.
 			real :: chan_temp = 0.
+      real :: Q_in_sum = 0.              !m3/day |running total of aquifer-->channel exchange flow, this channel, today
+      real :: QT_in_sum = 0.             !m3/day*degC |running total of (exchange flow * source cell temp), for the flow-weighted average
 
 
       !current channel storage (m3) and temperature (deg C)
       chan_volume = ch_stor(chan_id)%flo
+
+      !reset this channel's daily exchange accumulators 
+      Q_in_sum = 0.
+      QT_in_sum = 0.
 
       !characteristics of channel
       chan_depth = sd_ch(chan_id)%chd !depth (m) of water in channel
@@ -122,6 +128,10 @@
               endif
               gw_heat_ss(cell_id)%gwsw = gw_heat_ss(cell_id)%gwsw + heat_flux
               gwheat_state(cell_id)%stor = gwheat_state(cell_id)%stor + heat_flux !update heat in the cell
+              !accumulate this channel's daily gw-->channel exchange flow and flow-weighted temperature,
+              !for use in ch_temp's gw_contr mixing term
+              Q_in_sum = Q_in_sum + (-Q)
+              QT_in_sum = QT_in_sum + (-Q) * gwheat_state(cell_id)%temp
             else !entering cell (channel --> aquifer)
               heat_flux = 0.
               if(ch_stor(chan_id)%temp > 0) then
@@ -250,6 +260,16 @@
         endif !check if cell is active
 
       enddo !go to next cell
+
+      !store this channel's total daily gw-->channel exchange flow
+      if(gw_heat_flag == 1) then
+        gw_chan_exch_flo(chan_id) = Q_in_sum / 86400.
+        if(Q_in_sum > 1.e-6) then
+          gw_chan_exch_temp(chan_id) = QT_in_sum / Q_in_sum
+        else
+          gw_chan_exch_temp(chan_id) = 0.
+        endif
+      endif
 
       return
       end subroutine gwflow_channel_exch
